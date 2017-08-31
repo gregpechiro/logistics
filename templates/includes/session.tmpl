@@ -1,0 +1,50 @@
+<script src="/static/js/session-manager.js" charset="utf-8"></script>
+<script src="/static/js/cookie.js" charset="utf-8"></script>
+
+<script type="text/javascript">
+
+    // this should match the session time set a the server
+    var sessionLength = 15;
+    var preTimeoutWarning = 5;
+    var pingInterval = 1;
+
+    var logoutUrl = '/logout'
+    var timeoutUrl = '/logout'
+
+    // Configure and start the session timeout monitor
+    sessMon = sessionMonitor({
+        // Subtract 1 minute to ensure the backend doesn't expire the session first
+        sessionLifetime: (sessionLength - 1) * 60 * 1000,
+        timeBeforeWarning: preTimeoutWarning * 60 * 1000,
+        minPingInterval: pingInterval * 60 * 1000,
+        pingUrl: '/updateSession',
+        logoutUrl: logoutUrl,
+        timeoutUrl: timeoutUrl,
+        // refresh on key up ie. user is typing
+        activityEvents: 'keyup',
+        onbeforetimeout: function() {
+            sessionAlert();
+        },
+        onwarning: function() {
+            swal({
+                title: 'Your session is about to expire!',
+                text: 'Your session will expire in ' + Math.round(sessMon.timeBeforeWarning / 60 / 1000) + ' minutes.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#33b86c',
+                confirmButtonText: 'Stay Logged In',
+                cancelButtonText: 'Log me out',
+                closeOnConfirm: true,
+                closeOnCancel: true
+            }, function(isConfirm){
+                if (isConfirm) {
+                    sessMon.extendsess();
+                } else {
+                    sessMon.logout();
+                }
+            });
+        }
+    });
+
+    window.sessMon = sessMon;
+</script>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {{ template "head.tmpl" . }}
+
+        <title>Login</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">Web App</a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                     <ul class="nav navbar-nav navbar-right">
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+
+
+        <div class="container">
+            <div class="row">
+
+                <div class="col-lg-offset-1 col-xl-offset-1 col-lg-4 col-xl-4">
+                    {{ if .alertTimeout }}
+                        <div class="notifyjs-corner" style="position:inherit; margin: 0;">
+                            <div class="notifyjs-wrapper" style="margin:0;">
+                                <div class="notifyjs-container" style="margin:0;">
+                                    <div class="notifyjs-metro-base notifyjs-metro-warning">
+                                        <div class="image" data-notify-html="image">
+                                            <i class="fa fa-warning"></i>
+                                        </div>
+                                        <div class="text-wrapper">
+                                            <div class="title" data-notify-html="title">
+                                                You have been logged out
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                    {{ end }}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Login
+                        </div>
+                        <div class="panel-body">
+                            <form class="form-horizontal" action="/login" method="post">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">Email</label>
+                                    <div class="col-xs-8">
+                                        <span class="text-danger">{{ getFormError .formErrors "login.email" }}</span>
+                                        <input class="form-control" type="email" name="email">
+                                    </div>
+                                </div>
+                                <!-- toggle show password input -->
+								<div class="form-group">
+									<label class="control-label col-xs-4">Password</label>
+									<div class="col-xs-8">
+                                        <span class="text-danger">{{ getFormError .formErrors "login.password" }}</span>
+                                        <span class="text-danger capsWarn hide">Caps Lock is On</span>
+										<div class="input-group">
+											<input type="password" id="password" name="password" class="form-control toggle-pass" placeholder="Password"/>
+											<span class="input-group-btn">
+												<button type="button" class="btn btn-default toggle-pass" data-toggle="tooltip" data-placement="right" title="Click to show/hide your password">
+													<i class="fa fa-eye-slash"></i>
+												</button>
+											</span>
+										</div>
+									</div>
+								</div>
+								<!-- toggle show password input -->
+                                <button class="btn btn-primary btn-block">Login</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-offset-2 col-xl-offset-1 col-lg-4 col-xl-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Register
+                        </div>
+                        <div class="panel-body">
+                            <form class="form-horizontal" action="/register" method="post">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">First Name</label>
+                                    <div class="col-xs-8">
+                                        <span class="text-danger">{{ getFormError .formErrors "register.firstName" }}</span>
+                                        <input class="form-control" type="text" name="firstName">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">Last Name</label>
+                                    <div class="col-xs-8">
+                                        <span class="text-danger">{{ getFormError .formErrors "register.lastName" }}</span>
+                                        <input class="form-control" type="text" name="lastName">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">Email</label>
+                                    <div class="col-xs-8">
+                                        <span class="text-danger">{{ getFormError .formErrors "register.email" }}</span>
+                                        <input class="form-control" type="email" name="email">
+                                    </div>
+                                </div>
+								<div class="form-group">
+									<label class="control-label col-xs-4">Password</label>
+									<div class="col-xs-8">
+                                        <span class="text-danger">{{ getFormError .formErrors "register.password" }}</span>
+                                        <span class="text-danger capsWarn hide">Caps Lock is On</span>
+										<div class="input-group">
+											<input type="password" id="password" name="password" class="form-control toggle-pass" placeholder="Password"/>
+											<span class="input-group-btn">
+												<button type="button" class="btn btn-default toggle-pass" data-toggle="tooltip" data-placement="right" title="Click to show/hide your password">
+													<i class="fa fa-eye-slash"></i>
+												</button>
+											</span>
+										</div>
+									</div>
+								</div>
+                                <button class="btn btn-success btn-block">Register</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{ template "scripts.tmpl" . }}
+
+        <script src="/static/js/toggle-password.js" charset="utf-8"></script>
+        <script src="/static/js/caps.js" charset="utf-8"></script>
+
+    </body>
+</html>
