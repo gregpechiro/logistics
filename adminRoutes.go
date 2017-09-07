@@ -98,7 +98,7 @@ var adminSCElementArea = web.Route{"GET", "/admin/element/:id/area", func(w http
 		return
 	}
 
-	tmpl.Render(w, r, "admin-element-area-all.tmpl", web.Model{
+	tmpl.Render(w, r, "admin-element-area.tmpl", web.Model{
 		"element":    element,
 		"areas":      areas,
 		"otherAreas": otherAreas,

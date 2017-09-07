@@ -47,7 +47,7 @@ type Response struct {
 	R  string
 }
 
-func ElementGetLocatedInAreas(ElementId string) ([]SC_Area, error) {
+func ElementGetLocatedInAreas(elementId string) ([]SC_Area, error) {
 	var sC_Areas []SC_Area
 	conn, err := driver.OpenPool()
 	if err != nil {
@@ -55,7 +55,7 @@ func ElementGetLocatedInAreas(ElementId string) ([]SC_Area, error) {
 	}
 	defer conn.Close()
 
-	rows, err := conn.QueryNeo("MATCH (e:SC_Element{ Id:{ Id } })-[:LOCATED_IN]->(a:SC_Area) RETURN a", Params{"Id": ElementId})
+	rows, err := conn.QueryNeo("MATCH (e:SC_Element{ Id:{ elementId } })-[:LOCATED_IN]->(a:SC_Area) RETURN a", Params{"elementId": elementId})
 	if err != nil {
 		return sC_Areas, err
 	}
@@ -85,7 +85,7 @@ func ElementGetLocatedInAreas(ElementId string) ([]SC_Area, error) {
 	return sC_Areas, nil
 }
 
-func ElementGetNotLocatedInAreas(ElementId string) ([]SC_Area, error) {
+func ElementGetNotLocatedInAreas(elementId string) ([]SC_Area, error) {
 	var sC_Areas []SC_Area
 	conn, err := driver.OpenPool()
 	if err != nil {
@@ -93,7 +93,7 @@ func ElementGetNotLocatedInAreas(ElementId string) ([]SC_Area, error) {
 	}
 	defer conn.Close()
 
-	rows, err := conn.QueryNeo("MATCH (a:SC_Area) WHERE NOT exists( (:SC_Element{ Id:{ Id } })-[:LOCATED_IN]->(a) ) RETURN a", Params{"Id": ElementId})
+	rows, err := conn.QueryNeo("MATCH (a:SC_Area) WHERE NOT exists( (:SC_Element{ Id:{ elementId } })-[:LOCATED_IN]->(a) ) RETURN a", Params{"elementId": elementId})
 	if err != nil {
 		return sC_Areas, err
 	}
@@ -123,7 +123,7 @@ func ElementGetNotLocatedInAreas(ElementId string) ([]SC_Area, error) {
 	return sC_Areas, nil
 }
 
-func ElementSetLocatedIn(AreaIds []string, ElementId string) error {
+func ElementSetLocatedIn(areaIds []string, elementId string) error {
 	conn, err := driver.OpenPool()
 	if err != nil {
 		return err
@@ -132,11 +132,11 @@ func ElementSetLocatedIn(AreaIds []string, ElementId string) error {
 
 	var queries []string
 	var params []Params
-	for _, areaId := range AreaIds {
-		queries = append(queries, "MATCH (a:SC_Area{Id:{ AreaId }}) MATCH (e:SC_Element{Id:{ ElementId }}) MERGE (e)-[:LOCATED_IN]->(a)")
+	for _, areaId := range areaIds {
+		queries = append(queries, "MATCH (a:SC_Area{Id:{ areaId }}) MATCH (e:SC_Element{Id:{ elementId }}) MERGE (e)-[:LOCATED_IN]->(a)")
 		params = append(params, Params{
-			"AreaId":    areaId,
-			"ElementId": ElementId,
+			"areaId":    areaId,
+			"elementId": elementId,
 		})
 	}
 
@@ -154,9 +154,9 @@ func ElementRemoveLocatedIn(areaId string, elementId string) error {
 	}
 	defer conn.Close()
 
-	if _, err := conn.ExecNeo("MATCH (:SC_Element{Id:{ ElementId }})-[r:LOCATED_IN]->(:SC_Area{Id:{ AreaId }}) DELETE r", Params{
-		"AreaId":    areaId,
-		"ElementId": elementId,
+	if _, err := conn.ExecNeo("MATCH (:SC_Element{Id:{ elementId }})-[r:LOCATED_IN]->(:SC_Area{Id:{ areaId }}) DELETE r", Params{
+		"areaId":    areaId,
+		"elementId": elementId,
 	}); err != nil {
 		fmt.Printf(">>>>>\n%v\n", err)
 		return err
@@ -165,17 +165,17 @@ func ElementRemoveLocatedIn(areaId string, elementId string) error {
 	return nil
 }
 
-func ElementSetAsksIn(AreaId, QuestionId, ElementId string) error {
+func ElementSetAsksIn(areaId, questionId, elementId string) error {
 	conn, err := driver.OpenPool()
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
 
-	if _, err := conn.ExecNeo("MATCH (a:SC_Area{Id:{ AreaId }}) MATCH (e:SC_Element{Id:{ ElementId }}) MATCH (q:Question{Id:{ QuestionId }}) MERGE (q)<-[:ASKS]-(h:Hyper)-[:IN]->(a) MERGE (e)-[:ASKS_IN]->(h)", Params{
-		"AreaId":     AreaId,
-		"ElementId":  ElementId,
-		"QuestionId": QuestionId,
+	if _, err := conn.ExecNeo("MATCH (a:SC_Area{Id:{ areaId }}) MATCH (e:SC_Element{Id:{ elementId }}) MATCH (q:Question{Id:{ questionId }}) MERGE (q)<-[:ASKS]-(h:Hyper)-[:IN]->(a) MERGE (e)-[:ASKS_IN]->(h)", Params{
+		"areaId":     areaId,
+		"elementId":  elementId,
+		"questionId": questionId,
 	}); err != nil {
 		return err
 	}
@@ -183,17 +183,17 @@ func ElementSetAsksIn(AreaId, QuestionId, ElementId string) error {
 	return nil
 }
 
-func ElementRemoveAsksIn(AreaId, QuestionId, ElementId string) error {
+func ElementRemoveAsksIn(areaId, questionId, elementId string) error {
 	conn, err := driver.OpenPool()
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
 
-	if _, err := conn.ExecNeo("MATCH (:Question{Id:{ QuestionId }})<-[:ASKS]-(h:Hyper)-[:IN]->(:SC_Area{Id:{ AreaId }}), (:SC_Element{Id:{ ElementId }})-[r:ASKS_IN]->(h) DELETE r", Params{
-		"AreaId":     AreaId,
-		"ElementId":  ElementId,
-		"QuestionId": QuestionId,
+	if _, err := conn.ExecNeo("MATCH (:Question{Id:{ questionId }})<-[:ASKS]-(h:Hyper)-[:IN]->(:SC_Area{Id:{ areaId }}), (:SC_Element{Id:{ elementId }})-[r:ASKS_IN]->(h) DELETE r", Params{
+		"areaId":     areaId,
+		"elementId":  elementId,
+		"questionId": questionId,
 	}); err != nil {
 		return err
 	}
