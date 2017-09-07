@@ -33,6 +33,9 @@ func init() {
 
 	mux.AddRoutes(adminHome, adminSCArea, adminSCElement, adminQuestion, adminResponse)
 	mux.AddRoutes(adminAddSCArea, adminAddSCElement, adminAddQuestion, adminAddResponse)
+	mux.AddRoutes(adminSCElementAreaAdd, adminSCElementArea, adminSCElementAreaRemove)
+
+	mux.AddRoutes(adminSCElementAreaQuestion, adminSCElementAreaQuestionAdd, adminSCElementAreaQuestionRemove)
 
 	tmpl = web.NewTmplCache()
 

@@ -53,7 +53,7 @@
                             </thead>
                             <tbody>
                                 {{ range $element := .elements }}
-                                    <tr class="clickable">
+                                    <tr class="clickable" data-url="/admin/element/{{ $element.Id }}/area">
                                         <td>{{ $element.Name }}</td>
                                         <td>{{ $element.Description }}</td>
                                     </tr>

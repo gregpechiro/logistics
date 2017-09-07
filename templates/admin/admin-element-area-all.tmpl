@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {{ template "head.tmpl" . }}
+        <link rel="stylesheet" href="//cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="/static/css/datatables-custom.css">
+
+        <title>Admin</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">Web App</a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                     <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/account">My Account</a></li>
+                        <li><a href="/logout">Logout</a></li>
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-xl-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading clearfix">
+                            Areas
+                        </div>
+                        <table id="areas" class="table table-bordered table-hover" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ $element := .element }}
+                                {{ range $area := .areas }}
+                                    <tr class="clickable" data-url="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question">
+                                        <td>{{ $area.Name }}</td>
+                                        <td>{{ $area.Description }}</td>
+                                        <td class="text-center">
+                                            <form action="/admin/element/{{ $element.Id }}/area/remove" method="post">
+                                                <input type="hidden" name="areaId" value="{{ $area.Id }}">
+                                                <button class="btn btn-danger btn-xs">Remove</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {{ end }}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading clearfix">
+                            Other Areas
+                        </div>
+                        <table id="otherAreas" class="table table-bordered table-hover" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ range $area := .otherAreas }}
+                                    <tr>
+                                        <td>{{ $area.Name }}</td>
+                                        <td>{{ $area.Description }}</td>
+                                        <td class="text-center">
+                                            <form action="/admin/element/{{ $element.Id }}/area/add" method="post">
+                                                <input type="hidden" name="areaIds" value="{{ $area.Id }}">
+                                                <button class="btn btn-success btn-xs">Add</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {{ end }}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{ template "scripts.tmpl" . }}
+
+        <script src="/static/js/datatables-custom.js" charset="utf-8"></script>
+
+    </body>
+</html>

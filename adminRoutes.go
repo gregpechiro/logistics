@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/cagnosolutions/web"
 )
@@ -76,6 +78,145 @@ var adminAddSCElement = web.Route{"POST", "/admin/element", func(w http.Response
 	web.SetSuccessRedirect(w, r, "/admin/element", "Successfuly added supply chain element")
 	return
 
+}}
+
+var adminSCElementArea = web.Route{"GET", "/admin/element/:id/area", func(w http.ResponseWriter, r *http.Request) {
+	element, err := GetOnlyOneSC_ElementById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element", "Error finding supply chain element")
+		return
+	}
+	areas, err := ElementGetLocatedInAreas(element.Id)
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element", "Error retrieving supply chain areas for supply chain element")
+		return
+	}
+
+	otherAreas, err := ElementGetNotLocatedInAreas(element.Id)
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element", "Error getting supply chain areas")
+		return
+	}
+
+	tmpl.Render(w, r, "admin-element-area-all.tmpl", web.Model{
+		"element":    element,
+		"areas":      areas,
+		"otherAreas": otherAreas,
+	})
+}}
+
+var adminSCElementAreaAdd = web.Route{"POST", "/admin/element/:id/area/add", func(w http.ResponseWriter, r *http.Request) {
+	element, err := GetOnlyOneSC_ElementById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element", "Error finding supply chain element")
+		return
+	}
+	if err := ElementSetLocatedIn(strings.Split(r.FormValue("areaIds"), ","), element.Id); err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/add", "Error adding supply chain element to supply chain areas")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, "/admin/element/"+element.Id+"/area", "Successfully added suply chain element to supply chain areas")
+	return
+}}
+
+var adminSCElementAreaRemove = web.Route{"POST", "/admin/element/:id/area/remove", func(w http.ResponseWriter, r *http.Request) {
+	element, err := GetOnlyOneSC_ElementById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element", "Error finding supply chain element")
+		return
+	}
+	if err := ElementRemoveLocatedIn(r.FormValue("areaId"), element.Id); err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area", "Error removing supply chain element from supply chain area")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, "/admin/element/"+element.Id+"/area", "Successfully removed suply chain element from supply chain area")
+	return
+}}
+
+var adminSCElementAreaQuestion = web.Route{"GET", "/admin/element/:elementId/area/:areaId/question", func(w http.ResponseWriter, r *http.Request) {
+	element, err := GetOnlyOneSC_ElementById(r.FormValue(":elementId"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element", "Error finding supply chain element")
+		return
+	}
+	area, err := GetOnlyOneSC_AreaById(r.FormValue(":areaId"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area", "Error finding supply chain area")
+		return
+	}
+
+	questions, err := ElementGetAsksIn(area.Id, element.Id)
+	if err != nil {
+		fmt.Printf(">>>>\n%v\n", err)
+		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area/", "Error getting questions")
+		return
+	}
+
+	otherQuestions, err := ElementGetNotAsksIn(area.Id, element.Id)
+	if err != nil {
+		fmt.Printf(">>>>\n%v\n", err)
+		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area/", "Error getting questions")
+		return
+	}
+
+	if len(otherQuestions) == 0 && len(questions) == 0 {
+		otherQuestions, err = GetAllQuestion()
+		if err != nil {
+			fmt.Printf(">>>>\n%v\n", err)
+			web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area/", "Error getting questions")
+			return
+		}
+	}
+
+	tmpl.Render(w, r, "admin-element-area-question.tmpl", web.Model{
+		"element":        element,
+		"area":           area,
+		"questions":      questions,
+		"otherQuestions": otherQuestions,
+	})
+
+}}
+
+var adminSCElementAreaQuestionAdd = web.Route{"POST", "/admin/element/:elementId/area/:areaId/question/add", func(w http.ResponseWriter, r *http.Request) {
+	element, err := GetOnlyOneSC_ElementById(r.FormValue(":elementId"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element", "Error finding supply chain element")
+		return
+	}
+	area, err := GetOnlyOneSC_AreaById(r.FormValue(":areaId"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area", "Error finding supply chain area")
+		return
+	}
+	if err := ElementSetAsksIn(area.Id, r.FormValue("questionId"), element.Id); err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area/"+area.Id+"/question", "Error adding question to supply chain element")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, "/admin/element/"+element.Id+"/area/"+area.Id+"/question", "Successfully added question to supply chain element")
+	return
+}}
+
+var adminSCElementAreaQuestionRemove = web.Route{"POST", "/admin/element/:elementId/area/:areaId/question/remove", func(w http.ResponseWriter, r *http.Request) {
+	element, err := GetOnlyOneSC_ElementById(r.FormValue(":elementId"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element", "Error finding supply chain element")
+		return
+	}
+	area, err := GetOnlyOneSC_AreaById(r.FormValue(":areaId"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area", "Error finding supply chain area")
+		return
+	}
+	if err := ElementRemoveAsksIn(area.Id, r.FormValue("questionId"), element.Id); err != nil {
+		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area/"+area.Id+"/question", "Error removing question from supply chain element")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, "/admin/element/"+element.Id+"/area/"+area.Id+"/question", "Successfully removed question from supply chain element")
+	return
 }}
 
 var adminResponse = web.Route{"GET", "/admin/response", func(w http.ResponseWriter, r *http.Request) {

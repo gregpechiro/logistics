@@ -1,5 +1,14 @@
 package main
 
+import (
+	"fmt"
+	"io"
+
+	"github.com/johnnadratowski/golang-neo4j-bolt-driver/structures/graph"
+)
+
+type Params = map[string]interface{}
+
 type User struct {
 	Id        string `json:"id"`
 	Email     string `json:"email,omitempty" auth:"username" required:"register, login"`
@@ -11,17 +20,6 @@ type User struct {
 	Created   int64  `json:"created,omitempty"`
 	LastSeen  int64  `json:"lastSeen,omitempty"`
 }
-
-/*
-
-MATCH
-(e:SC_Element{Id:"1504114258945128188"}),
-(q:Question{Id:"1504114289214666257"}),
-(a:SC_Area{Id:"1504112043762496770"})
-MERGE (e)-[:ASKS_IN]->(h:Hyper)-[:ASKS]->(q)
-MERGE (h)-[:IN]->(a)
-
-*/
 
 //go:generate neo4jGenerator Question
 type Question struct {
@@ -47,4 +45,234 @@ type SC_Element struct {
 type Response struct {
 	Id string `neo4j:"index"`
 	R  string
+}
+
+func ElementGetLocatedInAreas(ElementId string) ([]SC_Area, error) {
+	var sC_Areas []SC_Area
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return sC_Areas, err
+	}
+	defer conn.Close()
+
+	rows, err := conn.QueryNeo("MATCH (e:SC_Element{ Id:{ Id } })-[:LOCATED_IN]->(a:SC_Area) RETURN a", Params{"Id": ElementId})
+	if err != nil {
+		return sC_Areas, err
+	}
+	defer rows.Close()
+	for data, _, err := rows.NextNeo(); err != io.EOF; data, _, err = rows.NextNeo() {
+		if err != nil {
+			return sC_Areas, err
+		}
+		node, ok := data[0].(graph.Node)
+		if !ok {
+			return sC_Areas, fmt.Errorf("data[0] is not type graph.Node it is %T\n", data[0])
+		}
+		sC_Area := SC_Area{}
+		if Id, ok := node.Properties["Id"].(string); ok {
+			sC_Area.Id = Id
+		}
+		if Name, ok := node.Properties["Name"].(string); ok {
+			sC_Area.Name = Name
+		}
+		if Description, ok := node.Properties["Description"].(string); ok {
+			sC_Area.Description = Description
+		}
+
+		sC_Areas = append(sC_Areas, sC_Area)
+	}
+
+	return sC_Areas, nil
+}
+
+func ElementGetNotLocatedInAreas(ElementId string) ([]SC_Area, error) {
+	var sC_Areas []SC_Area
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return sC_Areas, err
+	}
+	defer conn.Close()
+
+	rows, err := conn.QueryNeo("MATCH (a:SC_Area) WHERE NOT exists( (:SC_Element{ Id:{ Id } })-[:LOCATED_IN]->(a) ) RETURN a", Params{"Id": ElementId})
+	if err != nil {
+		return sC_Areas, err
+	}
+	defer rows.Close()
+	for data, _, err := rows.NextNeo(); err != io.EOF; data, _, err = rows.NextNeo() {
+		if err != nil {
+			return sC_Areas, err
+		}
+		node, ok := data[0].(graph.Node)
+		if !ok {
+			return sC_Areas, fmt.Errorf("data[0] is not type graph.Node it is %T\n", data[0])
+		}
+		sC_Area := SC_Area{}
+		if Id, ok := node.Properties["Id"].(string); ok {
+			sC_Area.Id = Id
+		}
+		if Name, ok := node.Properties["Name"].(string); ok {
+			sC_Area.Name = Name
+		}
+		if Description, ok := node.Properties["Description"].(string); ok {
+			sC_Area.Description = Description
+		}
+
+		sC_Areas = append(sC_Areas, sC_Area)
+	}
+
+	return sC_Areas, nil
+}
+
+func ElementSetLocatedIn(AreaIds []string, ElementId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	var queries []string
+	var params []Params
+	for _, areaId := range AreaIds {
+		queries = append(queries, "MATCH (a:SC_Area{Id:{ AreaId }}) MATCH (e:SC_Element{Id:{ ElementId }}) MERGE (e)-[:LOCATED_IN]->(a)")
+		params = append(params, Params{
+			"AreaId":    areaId,
+			"ElementId": ElementId,
+		})
+	}
+
+	if _, err := conn.ExecPipeline(queries, params...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ElementRemoveLocatedIn(areaId string, elementId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	if _, err := conn.ExecNeo("MATCH (:SC_Element{Id:{ ElementId }})-[r:LOCATED_IN]->(:SC_Area{Id:{ AreaId }}) DELETE r", Params{
+		"AreaId":    areaId,
+		"ElementId": elementId,
+	}); err != nil {
+		fmt.Printf(">>>>>\n%v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func ElementSetAsksIn(AreaId, QuestionId, ElementId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	if _, err := conn.ExecNeo("MATCH (a:SC_Area{Id:{ AreaId }}) MATCH (e:SC_Element{Id:{ ElementId }}) MATCH (q:Question{Id:{ QuestionId }}) MERGE (q)<-[:ASKS]-(h:Hyper)-[:IN]->(a) MERGE (e)-[:ASKS_IN]->(h)", Params{
+		"AreaId":     AreaId,
+		"ElementId":  ElementId,
+		"QuestionId": QuestionId,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ElementRemoveAsksIn(AreaId, QuestionId, ElementId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	if _, err := conn.ExecNeo("MATCH (:Question{Id:{ QuestionId }})<-[:ASKS]-(h:Hyper)-[:IN]->(:SC_Area{Id:{ AreaId }}), (:SC_Element{Id:{ ElementId }})-[r:ASKS_IN]->(h) DELETE r", Params{
+		"AreaId":     AreaId,
+		"ElementId":  ElementId,
+		"QuestionId": QuestionId,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ElementGetAsksIn(areaId, elementId string) ([]Question, error) {
+	var questions []Question
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return questions, err
+	}
+	defer conn.Close()
+
+	rows, err := conn.QueryNeo("MATCH (:SC_Element{Id:{ elementId }})-[:ASKS_IN]->(h:Hyper)-[:IN]->(:SC_Area{Id:{ areaId }}), (h)-[:ASKS]->(q:Question) RETURN q", Params{
+		"areaId":    areaId,
+		"elementId": elementId,
+	})
+	if err != nil {
+		return questions, err
+	}
+
+	defer rows.Close()
+	for data, _, err := rows.NextNeo(); err != io.EOF; data, _, err = rows.NextNeo() {
+		if err != nil {
+			return questions, err
+		}
+		node, ok := data[0].(graph.Node)
+		if !ok {
+			return questions, fmt.Errorf("data[0] is not type graph.Node it is %T\n", data[0])
+		}
+		question := Question{}
+		if Id, ok := node.Properties["Id"].(string); ok {
+			question.Id = Id
+		}
+		if q, ok := node.Properties["Q"].(string); ok {
+			question.Q = q
+		}
+		questions = append(questions, question)
+	}
+
+	return questions, nil
+}
+
+func ElementGetNotAsksIn(areaId, elementId string) ([]Question, error) {
+	var questions []Question
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return questions, err
+	}
+	defer conn.Close()
+
+	rows, err := conn.QueryNeo("MATCH (:SC_Element{Id:{ elementId }})-[:ASKS_IN]->(h:Hyper)-[:IN]->(:SC_Area{Id: { areaId }}) MATCH (q:Question) WHERE NOT exists((h)-[:ASKS]->(q)) RETURN q", Params{
+		"areaId":    areaId,
+		"elementId": elementId,
+	})
+	if err != nil {
+		return questions, err
+	}
+
+	defer rows.Close()
+	for data, _, err := rows.NextNeo(); err != io.EOF; data, _, err = rows.NextNeo() {
+		if err != nil {
+			return questions, err
+		}
+		node, ok := data[0].(graph.Node)
+		if !ok {
+			return questions, fmt.Errorf("data[0] is not type graph.Node it is %T\n", data[0])
+		}
+		question := Question{}
+		if Id, ok := node.Properties["Id"].(string); ok {
+			question.Id = Id
+		}
+		if q, ok := node.Properties["Q"].(string); ok {
+			question.Q = q
+		}
+		questions = append(questions, question)
+	}
+
+	return questions, nil
 }

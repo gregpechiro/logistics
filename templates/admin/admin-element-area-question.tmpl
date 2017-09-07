@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {{ template "head.tmpl" . }}
+        <link rel="stylesheet" href="//cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="/static/css/datatables-custom.css">
+
+        <style media="screen">
+            .dataTables_wrapper table thead{
+                display:none;
+            }
+            table.dataTable {
+                border-collapse: collapse !important;
+            }
+        </style>
+
+        <title>Admin</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">Web App</a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                     <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/account">My Account</a></li>
+                        <li><a href="/logout">Logout</a></li>
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-xl-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading clearfix">
+                            Questions
+                        </div>
+                        <div class="panel-body">
+                            <table id="questions" class="table table-bordered table-hover" width="100%">
+                                <thead>
+                                    <tr id="search">
+                                        <th>q</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{ $element := .element }}
+                                    {{ $area := .area }}
+                                    {{ range $question := .questions }}
+                                        <tr class="clickable">
+                                            <td>{{ $question.Q }}</td>
+                                            <td class="text-center">
+                                                <form action="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question/remove" method="post">
+                                                    <input type="hidden" name="questionId" value="{{ $question.Id }}">
+                                                    <button class="btn btn-danger btn-xs">Remove</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading clearfix">
+                            Other Questions
+                        </div>
+                        <div class="panel-body">
+                            <table id="otherQuestions" class="table table-bordered table-hover" width="100%">
+                                <thead style="display:none;">
+                                    <tr id="search">
+                                        <th>q</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{ range $question := .otherQuestions }}
+                                        <tr class="clickable">
+                                            <td>{{ $question.Q }}</td>
+                                            <td class="text-center">
+                                                <form action="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question/add" method="post">
+                                                    <input type="hidden" name="questionId" value="{{ $question.Id }}">
+                                                    <button class="btn btn-success btn-xs">Add</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{ template "scripts.tmpl" . }}
+
+        <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js" charset="utf-8"></script>
+        <script src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js" charset="utf-8"></script>
+
+
+        <script type="text/javascript">
+            var table = $('#questions').DataTable({
+                "lengthMenu": [5, 10, 15, 20],
+                "pageLength": 10
+            });
+
+            var table2 = $('#otherQuestions').DataTable({
+                "lengthMenu": [5, 10, 15, 20],
+                "pageLength": 10
+            });
+        </script>
+
+    </body>
+</html>
