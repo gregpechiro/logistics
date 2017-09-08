@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/cagnosolutions/web"
@@ -33,9 +34,10 @@ var adminSCArea = web.Route{"GET", "/admin/area", func(w http.ResponseWriter, r 
 	tmpl.Render(w, r, "admin-area.tmpl", web.Model{
 		"areas": areas,
 	})
+	return
 }}
 
-var adminAddSCArea = web.Route{"POST", "/admin/area", func(w http.ResponseWriter, r *http.Request) {
+var adminSCAreaAdd = web.Route{"POST", "/admin/area", func(w http.ResponseWriter, r *http.Request) {
 	area := SC_Area{
 		Id:          genId(),
 		Name:        r.FormValue("name"),
@@ -52,6 +54,55 @@ var adminAddSCArea = web.Route{"POST", "/admin/area", func(w http.ResponseWriter
 
 }}
 
+var adminSCAreaUpdate = web.Route{"POST", "/admin/area/:id", func(w http.ResponseWriter, r *http.Request) {
+
+	redirect := r.FormValue("redirect")
+	if redirect == "" {
+		redirect = "/admin/area"
+		rUrl, err := url.Parse(r.Referer())
+		if err == nil {
+			redirect = rUrl.Path
+		}
+	}
+
+	area, err := GetOnlyOneSC_AreaById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error finding supply chain area")
+		return
+	}
+
+	area.Name = r.FormValue("name")
+	area.Description = r.FormValue("description")
+
+	if err := UpdateAllSC_AreaById(area.Id, area); err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error updating supply chain area")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, redirect, "Successfully updated supply chain area")
+	return
+
+}}
+
+var adminSCAreaDelete = web.Route{"POST", "/admin/area/del/:id", func(w http.ResponseWriter, r *http.Request) {
+	redirect := r.FormValue("redirect")
+	if redirect == "" {
+		redirect = "/admin/area"
+		rUrl, err := url.Parse(r.Referer())
+		if err == nil {
+			redirect = rUrl.Path
+		}
+	}
+
+	if err := DeleteAllSC_AreaById(r.FormValue(":id")); err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error deleting supply chain area")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, redirect, "Successfully deleted Supply chain area")
+	return
+}}
+
 var adminSCElement = web.Route{"GET", "/admin/element", func(w http.ResponseWriter, r *http.Request) {
 	elements, err := GetAllSC_Element()
 	if err != nil {
@@ -61,9 +112,10 @@ var adminSCElement = web.Route{"GET", "/admin/element", func(w http.ResponseWrit
 	tmpl.Render(w, r, "admin-element.tmpl", web.Model{
 		"elements": elements,
 	})
+	return
 }}
 
-var adminAddSCElement = web.Route{"POST", "/admin/element", func(w http.ResponseWriter, r *http.Request) {
+var adminSCElementAdd = web.Route{"POST", "/admin/element", func(w http.ResponseWriter, r *http.Request) {
 	element := SC_Element{
 		Id:          genId(),
 		Name:        r.FormValue("name"),
@@ -78,6 +130,55 @@ var adminAddSCElement = web.Route{"POST", "/admin/element", func(w http.Response
 	web.SetSuccessRedirect(w, r, "/admin/element", "Successfuly added supply chain element")
 	return
 
+}}
+
+var adminSCElementUpdate = web.Route{"POST", "/admin/element/:id", func(w http.ResponseWriter, r *http.Request) {
+
+	redirect := r.FormValue("redirect")
+	if redirect == "" {
+		redirect = "/admin/element"
+		rUrl, err := url.Parse(r.Referer())
+		if err == nil {
+			redirect = rUrl.Path
+		}
+	}
+
+	element, err := GetOnlyOneSC_ElementById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error finding supply chain element")
+		return
+	}
+
+	element.Name = r.FormValue("name")
+	element.Description = r.FormValue("description")
+
+	if err := UpdateAllSC_ElementById(element.Id, element); err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error updating supply chain element")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, redirect, "Successfully updated supply chain element")
+	return
+
+}}
+
+var adminSCElementDelete = web.Route{"POST", "/admin/element/del/:id", func(w http.ResponseWriter, r *http.Request) {
+	redirect := r.FormValue("redirect")
+	if redirect == "" {
+		redirect = "/admin/element"
+		rUrl, err := url.Parse(r.Referer())
+		if err == nil {
+			redirect = rUrl.Path
+		}
+	}
+
+	if err := DeleteAllSC_ElementById(r.FormValue(":id")); err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error deleting supply chain element")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, redirect, "Successfully deleted Supply chain element")
+	return
 }}
 
 var adminSCElementArea = web.Route{"GET", "/admin/element/:id/area", func(w http.ResponseWriter, r *http.Request) {
@@ -103,6 +204,7 @@ var adminSCElementArea = web.Route{"GET", "/admin/element/:id/area", func(w http
 		"areas":      areas,
 		"otherAreas": otherAreas,
 	})
+	return
 }}
 
 var adminSCElementAreaAdd = web.Route{"POST", "/admin/element/:id/area/add", func(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +251,6 @@ var adminSCElementAreaQuestion = web.Route{"GET", "/admin/element/:elementId/are
 
 	questions, err := ElementGetAsksIn(area.Id, element.Id)
 	if err != nil {
-		fmt.Printf(">>>>\n%v\n", err)
 		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area/", "Error getting questions")
 		return
 	}
@@ -161,14 +262,16 @@ var adminSCElementAreaQuestion = web.Route{"GET", "/admin/element/:elementId/are
 		return
 	}
 
-	if len(otherQuestions) == 0 && len(questions) == 0 {
+	/*if len(otherQuestions) == 0 && len(questions) == 0 {
 		otherQuestions, err = GetAllQuestion()
 		if err != nil {
 			fmt.Printf(">>>>\n%v\n", err)
 			web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area/", "Error getting questions")
 			return
 		}
-	}
+	}*/
+
+	fmt.Println(len(otherQuestions))
 
 	tmpl.Render(w, r, "admin-element-area-question.tmpl", web.Model{
 		"element":        element,
@@ -176,6 +279,7 @@ var adminSCElementAreaQuestion = web.Route{"GET", "/admin/element/:elementId/are
 		"questions":      questions,
 		"otherQuestions": otherQuestions,
 	})
+	return
 
 }}
 
@@ -190,7 +294,7 @@ var adminSCElementAreaQuestionAdd = web.Route{"POST", "/admin/element/:elementId
 		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area", "Error finding supply chain area")
 		return
 	}
-	if err := ElementSetAsksIn(area.Id, r.FormValue("questionId"), element.Id); err != nil {
+	if err := ElementSetAsksIn(area.Id, element.Id, strings.Split(r.FormValue("questionIds"), ",")); err != nil {
 		web.SetErrorRedirect(w, r, "/admin/element/"+element.Id+"/area/"+area.Id+"/question", "Error adding question to supply chain element")
 		return
 	}
@@ -230,7 +334,7 @@ var adminResponse = web.Route{"GET", "/admin/response", func(w http.ResponseWrit
 	})
 }}
 
-var adminAddResponse = web.Route{"POST", "/admin/response", func(w http.ResponseWriter, r *http.Request) {
+var adminResponseAdd = web.Route{"POST", "/admin/response", func(w http.ResponseWriter, r *http.Request) {
 	response := Response{
 		Id: genId(),
 		R:  r.FormValue("r"),
@@ -246,6 +350,54 @@ var adminAddResponse = web.Route{"POST", "/admin/response", func(w http.Response
 
 }}
 
+var adminResponseUpdate = web.Route{"POST", "/admin/response/:id", func(w http.ResponseWriter, r *http.Request) {
+
+	redirect := r.FormValue("redirect")
+	if redirect == "" {
+		redirect = "/admin/response"
+		rUrl, err := url.Parse(r.Referer())
+		if err == nil {
+			redirect = rUrl.Path
+		}
+	}
+
+	response, err := GetOnlyOneResponseById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error finding response")
+		return
+	}
+
+	response.R = r.FormValue("r")
+
+	if err := UpdateAllResponseById(response.Id, response); err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error updating response")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, redirect, "Successfully updated response")
+	return
+
+}}
+
+var adminResponseDelete = web.Route{"POST", "/admin/response/del/:id", func(w http.ResponseWriter, r *http.Request) {
+	redirect := r.FormValue("redirect")
+	if redirect == "" {
+		redirect = "/admin/response"
+		rUrl, err := url.Parse(r.Referer())
+		if err == nil {
+			redirect = rUrl.Path
+		}
+	}
+
+	if err := DeleteAllResponseById(r.FormValue(":id")); err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error deleting response")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, redirect, "Successfully deleted response")
+	return
+}}
+
 var adminQuestion = web.Route{"GET", "/admin/question", func(w http.ResponseWriter, r *http.Request) {
 	questions, err := GetAllQuestion()
 	if err != nil {
@@ -255,9 +407,10 @@ var adminQuestion = web.Route{"GET", "/admin/question", func(w http.ResponseWrit
 	tmpl.Render(w, r, "admin-question.tmpl", web.Model{
 		"questions": questions,
 	})
+	return
 }}
 
-var adminAddQuestion = web.Route{"POST", "/admin/question", func(w http.ResponseWriter, r *http.Request) {
+var adminQuestionAdd = web.Route{"POST", "/admin/question", func(w http.ResponseWriter, r *http.Request) {
 	question := Question{
 		Id: genId(),
 		Q:  r.FormValue("q"),
@@ -271,4 +424,108 @@ var adminAddQuestion = web.Route{"POST", "/admin/question", func(w http.Response
 	web.SetSuccessRedirect(w, r, "/admin/question", "Successfuly added question")
 	return
 
+}}
+
+var adminQuestionUpdate = web.Route{"POST", "/admin/question/:id", func(w http.ResponseWriter, r *http.Request) {
+
+	redirect := r.FormValue("redirect")
+	if redirect == "" {
+		redirect = "/admin/question"
+		rUrl, err := url.Parse(r.Referer())
+		if err == nil {
+			redirect = rUrl.Path
+		}
+	}
+
+	question, err := GetOnlyOneQuestionById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error finding question")
+		return
+	}
+
+	question.Q = r.FormValue("q")
+
+	if err := UpdateAllQuestionById(question.Id, question); err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error updating question")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, redirect, "Successfully updated question")
+	return
+
+}}
+
+var adminQuestionDelete = web.Route{"POST", "/admin/question/del/:id", func(w http.ResponseWriter, r *http.Request) {
+	redirect := r.FormValue("redirect")
+	if redirect == "" {
+		redirect = "/admin/question"
+		rUrl, err := url.Parse(r.Referer())
+		if err == nil {
+			redirect = rUrl.Path
+		}
+	}
+
+	if err := DeleteAllQuestionById(r.FormValue(":id")); err != nil {
+		web.SetErrorRedirect(w, r, redirect, "Error deleting question")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, redirect, "Successfully deleted question")
+	return
+}}
+
+var adminQuestionResponse = web.Route{"GET", "/admin/question/:id/response", func(w http.ResponseWriter, r *http.Request) {
+	question, err := GetOnlyOneQuestionById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/question", "Error finding question")
+		return
+	}
+	responses, err := QuestionGetReceivedResponses(question.Id)
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/question", "Error getting responses")
+		return
+	}
+	otherResponses, err := QuestionGetNotReceivedResponses(question.Id)
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/question", "Error getting responses")
+	}
+	tmpl.Render(w, r, "admin-question-response.tmpl", web.Model{
+		"question":       question,
+		"responses":      responses,
+		"otherResponses": otherResponses,
+	})
+
+	return
+}}
+
+var adminQuestionResponseAdd = web.Route{"POST", "/admin/question/:id/response/add", func(w http.ResponseWriter, r *http.Request) {
+	question, err := GetOnlyOneQuestionById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/question", "Error finding question")
+		return
+	}
+	if err := QuestionSetReceived(strings.Split(r.FormValue("responseIds"), ","), question.Id); err != nil {
+		web.SetErrorRedirect(w, r, "/admin/question/"+question.Id, "Error adding response to question")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, "/admin/question/"+question.Id, "Successfully added response to question")
+
+	return
+}}
+
+var adminQuestionResponseRemove = web.Route{"POST", "/admin/question/:id/response/remove", func(w http.ResponseWriter, r *http.Request) {
+	question, err := GetOnlyOneQuestionById(r.FormValue(":id"))
+	if err != nil {
+		web.SetErrorRedirect(w, r, "/admin/question", "Error finding question")
+		return
+	}
+	if err := QuestionRemoveReceived(r.FormValue("responseId"), question.Id); err != nil {
+		web.SetErrorRedirect(w, r, "/admin/question/"+question.Id, "Error removing response from question")
+		return
+	}
+
+	web.SetSuccessRedirect(w, r, "/admin/question/"+question.Id, "Successfully removing response from question")
+
+	return
 }}

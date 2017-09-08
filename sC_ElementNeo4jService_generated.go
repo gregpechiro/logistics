@@ -239,7 +239,7 @@ func DeleteAllSC_ElementById(id string) error {
 	}
 	defer conn.Close()
 
-	_, err = conn.ExecNeo("MATCH (sC_Element:SC_Element{ Id:{ Id }) DETACH DELETE sC_Element", map[string]interface{}{
+	_, err = conn.ExecNeo("MATCH (sC_Element:SC_Element{ Id:{ Id } }) DETACH DELETE sC_Element", map[string]interface{}{
 		"Id": id,
 	})
 	return err
@@ -402,7 +402,7 @@ func DeleteAllSC_ElementByName(name string) error {
 	}
 	defer conn.Close()
 
-	_, err = conn.ExecNeo("MATCH (sC_Element:SC_Element{ Name:{ Name }) DETACH DELETE sC_Element", map[string]interface{}{
+	_, err = conn.ExecNeo("MATCH (sC_Element:SC_Element{ Name:{ Name } }) DETACH DELETE sC_Element", map[string]interface{}{
 		"Name": name,
 	})
 	return err
@@ -565,7 +565,7 @@ func DeleteAllSC_ElementByDescription(description string) error {
 	}
 	defer conn.Close()
 
-	_, err = conn.ExecNeo("MATCH (sC_Element:SC_Element{ Description:{ Description }) DETACH DELETE sC_Element", map[string]interface{}{
+	_, err = conn.ExecNeo("MATCH (sC_Element:SC_Element{ Description:{ Description } }) DETACH DELETE sC_Element", map[string]interface{}{
 		"Description": description,
 	})
 	return err

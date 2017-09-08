@@ -225,7 +225,7 @@ func DeleteAllQuestionById(id string) error {
 	}
 	defer conn.Close()
 
-	_, err = conn.ExecNeo("MATCH (question:Question{ Id:{ Id }) DETACH DELETE question", map[string]interface{}{
+	_, err = conn.ExecNeo("MATCH (question:Question{ Id:{ Id } }) DETACH DELETE question", map[string]interface{}{
 		"Id": id,
 	})
 	return err
@@ -378,7 +378,7 @@ func DeleteAllQuestionByQ(q string) error {
 	}
 	defer conn.Close()
 
-	_, err = conn.ExecNeo("MATCH (question:Question{ Q:{ Q }) DETACH DELETE question", map[string]interface{}{
+	_, err = conn.ExecNeo("MATCH (question:Question{ Q:{ Q } }) DETACH DELETE question", map[string]interface{}{
 		"Q": q,
 	})
 	return err

@@ -1,0 +1,64 @@
+<div class="modal fade" id="elementModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Element</h4>
+            </div>
+            <div class="modal-body">
+                <form id="elementForm" action="/admin/element" method="post">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input id="name" class="form-control" type="text" name="name" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="description" class="form-control" name="description" rows="4"></textarea>
+                    </div>
+                    <button class="btn btn-success btn-block" name="button">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var element;
+
+    $('.elementEdit').click(function(e) {
+        e.stopPropagation();
+        parseElement(this);
+    });
+
+    $('#elementModal').on('hidden.bs.modal', function() {
+        resetElement();
+    });
+
+    function resetElement() {
+       $('form#elementForm')[0].reset();
+       $('form#elementForm').attr('action', '/admin/element');
+       element = null;
+   }
+
+    function parseElement(clickElem) {
+        try {
+           element = JSON.parse(atob($(clickElem).attr('data-element')));
+        } catch(err) {
+            swal({
+                title: 'Error',
+                text: 'Error getting element. Please refresh the page and try again',
+                type: 'warning',
+                showConfirmButton: false
+            });
+            return
+        }
+
+        $('form#elementForm').attr('action', '/admin/element/' + element.Id);
+        $('form#elementForm input#name').val(element.Name);
+        $('form#elementForm textarea#description').val(element.Description);
+
+        $('#elementModal').modal('show');
+
+    }
+</script>

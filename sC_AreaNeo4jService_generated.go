@@ -239,7 +239,7 @@ func DeleteAllSC_AreaById(id string) error {
 	}
 	defer conn.Close()
 
-	_, err = conn.ExecNeo("MATCH (sC_Area:SC_Area{ Id:{ Id }) DETACH DELETE sC_Area", map[string]interface{}{
+	_, err = conn.ExecNeo("MATCH (sC_Area:SC_Area{ Id:{ Id } }) DETACH DELETE sC_Area", map[string]interface{}{
 		"Id": id,
 	})
 	return err
@@ -402,7 +402,7 @@ func DeleteAllSC_AreaByName(name string) error {
 	}
 	defer conn.Close()
 
-	_, err = conn.ExecNeo("MATCH (sC_Area:SC_Area{ Name:{ Name }) DETACH DELETE sC_Area", map[string]interface{}{
+	_, err = conn.ExecNeo("MATCH (sC_Area:SC_Area{ Name:{ Name } }) DETACH DELETE sC_Area", map[string]interface{}{
 		"Name": name,
 	})
 	return err
@@ -565,7 +565,7 @@ func DeleteAllSC_AreaByDescription(description string) error {
 	}
 	defer conn.Close()
 
-	_, err = conn.ExecNeo("MATCH (sC_Area:SC_Area{ Description:{ Description }) DETACH DELETE sC_Area", map[string]interface{}{
+	_, err = conn.ExecNeo("MATCH (sC_Area:SC_Area{ Description:{ Description } }) DETACH DELETE sC_Area", map[string]interface{}{
 		"Description": description,
 	})
 	return err

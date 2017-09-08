@@ -4,33 +4,20 @@
         {{ template "head.tmpl" . }}
         <link rel="stylesheet" href="//cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
         <link rel="stylesheet" href="/static/css/datatables-custom.css">
+        <style media="screen">
+            .dataTables_wrapper table thead{
+                display:none;
+            }
+            table.dataTable {
+                border-collapse: collapse !important;
+            }
+        </style>
+
 
         <title>Admin</title>
     </head>
     <body>
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="/">Web App</a>
-                </div>
-
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-
-                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="/account">My Account</a></li>
-                        <li><a href="/logout">Logout</a></li>
-                    </ul>
-
-                </div>
-            </div>
-        </nav>
+        {{ template "admin-navbar.tmpl" . }}
 
         <div class="container">
             <div class="row">
@@ -38,21 +25,20 @@
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
                             Responses
-                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#add">Add</button>
+                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#responseModal">Add</button>
                         </div>
                         <table id="responses" class="table table-bordered table-hover" width="100%">
                             <thead>
                                 <tr id="search">
                                     <th>r</th>
-                                </tr>
-                                <tr>
-                                    <th>Response</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {{ range $response := .responses }}
                                     <tr class="clickable">
                                         <td>{{ $response.R }}</td>
+                                        <td class="text-center"><button class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">Edit</button></td>
                                     </tr>
                                 {{ end }}
                             </tbody>
@@ -62,7 +48,7 @@
             </div>
         </div>
 
-        <div class="modal fade" id="add" tabindex="-1" role="dialog">
+        <!--<div class="modal fade" id="add" tabindex="-1" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -81,9 +67,10 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
 
         {{ template "scripts.tmpl" . }}
+        {{ template "response-form.tmpl" . }}
 
         <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js" charset="utf-8"></script>
         <script src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js" charset="utf-8"></script>

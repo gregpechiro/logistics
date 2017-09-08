@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -24,4 +26,12 @@ func defaultUsers() {
 
 func genId() string {
 	return strconv.Itoa(int(time.Now().UnixNano()))
+}
+
+func toBase64Json(v interface{}) string {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return ""
+	}
+	return base64.StdEncoding.EncodeToString(b)
 }

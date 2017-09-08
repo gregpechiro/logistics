@@ -29,13 +29,20 @@ func init() {
 	mux.AddSecureRoutes(USER, account)
 
 	// admin routes
-	// mux.AddSecureRoutes(ADMIN, adminHome)
-
-	mux.AddRoutes(adminHome, adminSCArea, adminSCElement, adminQuestion, adminResponse)
-	mux.AddRoutes(adminAddSCArea, adminAddSCElement, adminAddQuestion, adminAddResponse)
+	// home
+	mux.AddRoutes(adminHome)
+	// supply chain area
+	mux.AddRoutes(adminSCArea, adminSCAreaAdd, adminSCAreaUpdate, adminSCAreaDelete)
+	// supply chain element
+	mux.AddRoutes(adminSCElement, adminSCElementAdd, adminSCElementUpdate, adminSCElementDelete)
 	mux.AddRoutes(adminSCElementAreaAdd, adminSCElementArea, adminSCElementAreaRemove)
-
 	mux.AddRoutes(adminSCElementAreaQuestion, adminSCElementAreaQuestionAdd, adminSCElementAreaQuestionRemove)
+	// question
+	mux.AddRoutes(adminQuestion, adminQuestionAdd, adminQuestionUpdate, adminQuestionDelete)
+	// response
+	mux.AddRoutes(adminResponse, adminResponseAdd, adminResponseUpdate, adminResponseDelete)
+
+	web.Funcs["toBase64Json"] = toBase64Json
 
 	tmpl = web.NewTmplCache()
 

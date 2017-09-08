@@ -17,29 +17,7 @@
         <title>Admin</title>
     </head>
     <body>
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="/">Web App</a>
-                </div>
-
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-
-                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="/account">My Account</a></li>
-                        <li><a href="/logout">Logout</a></li>
-                    </ul>
-
-                </div>
-            </div>
-        </nav>
+        {{ template "admin-navbar.tmpl" . }}
 
         <div class="container">
             <div class="row">
@@ -95,7 +73,7 @@
                                             <td>{{ $question.Q }}</td>
                                             <td class="text-center">
                                                 <form action="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question/add" method="post">
-                                                    <input type="hidden" name="questionId" value="{{ $question.Id }}">
+                                                    <input type="hidden" name="questionIds" value="{{ $question.Id }}">
                                                     <button class="btn btn-success btn-xs">Add</button>
                                                 </form>
                                             </td>

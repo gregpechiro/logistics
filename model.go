@@ -165,20 +165,35 @@ func ElementRemoveLocatedIn(areaId string, elementId string) error {
 	return nil
 }
 
-func ElementSetAsksIn(areaId, questionId, elementId string) error {
+func ElementSetAsksIn(areaId, elementId string, questionIds []string) error {
 	conn, err := driver.OpenPool()
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
 
-	if _, err := conn.ExecNeo("MATCH (a:SC_Area{Id:{ areaId }}) MATCH (e:SC_Element{Id:{ elementId }}) MATCH (q:Question{Id:{ questionId }}) MERGE (q)<-[:ASKS]-(h:Hyper)-[:IN]->(a) MERGE (e)-[:ASKS_IN]->(h)", Params{
+	var queries []string
+	var params []Params
+	for _, questionId := range questionIds {
+		queries = append(queries, "MATCH (a:SC_Area{Id:{ areaId }}) MATCH (e:SC_Element{Id:{ elementId }}) MATCH (q:Question{Id:{ questionId }}) MERGE (q)<-[:ASKS]-(h:Hyper)-[:IN]->(a) MERGE (e)-[:ASKS_IN]->(h)")
+		params = append(params, Params{
+			"areaId":     areaId,
+			"elementId":  elementId,
+			"questionId": questionId,
+		})
+	}
+
+	if _, err := conn.ExecPipeline(queries, params...); err != nil {
+		return err
+	}
+
+	/*if _, err := conn.ExecNeo("MATCH (a:SC_Area{Id:{ areaId }}) MATCH (e:SC_Element{Id:{ elementId }}) MATCH (q:Question{Id:{ questionId }}) MERGE (q)<-[:ASKS]-(h:Hyper)-[:IN]->(a) MERGE (e)-[:ASKS_IN]->(h)", Params{
 		"areaId":     areaId,
 		"elementId":  elementId,
 		"questionId": questionId,
 	}); err != nil {
 		return err
-	}
+	}*/
 
 	return nil
 }
@@ -275,4 +290,115 @@ func ElementGetNotAsksIn(areaId, elementId string) ([]Question, error) {
 	}
 
 	return questions, nil
+}
+
+func QuestionGetReceivedResponses(questionId string) ([]Response, error) {
+	var responses []Response
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return responses, err
+	}
+	defer conn.Close()
+
+	rows, err := conn.QueryNeo("MATCH (q:Question{ Id:{ questionId } })-[:RECEIVED]->(r:Response) RETURN r", Params{"questionId": questionId})
+	if err != nil {
+		return responses, err
+	}
+	defer rows.Close()
+	for data, _, err := rows.NextNeo(); err != io.EOF; data, _, err = rows.NextNeo() {
+		if err != nil {
+			return responses, err
+		}
+		node, ok := data[0].(graph.Node)
+		if !ok {
+			return responses, fmt.Errorf("data[0] is not type graph.Node it is %T\n", data[0])
+		}
+		response := Response{}
+		if id, ok := node.Properties["Id"].(string); ok {
+			response.Id = id
+		}
+		if r, ok := node.Properties["R"].(string); ok {
+			response.R = r
+		}
+
+		responses = append(responses, response)
+	}
+
+	return responses, nil
+}
+
+func QuestionGetNotReceivedResponses(questionId string) ([]Response, error) {
+	var responses []Response
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return responses, err
+	}
+	defer conn.Close()
+
+	rows, err := conn.QueryNeo("MATCH (r:Response) WHERE NOT exists( (:Question{ Id:{ questionId } })-[:RECEIVED]->(r) ) RETURN r", Params{"questionId": questionId})
+	if err != nil {
+		return responses, err
+	}
+	defer rows.Close()
+	for data, _, err := rows.NextNeo(); err != io.EOF; data, _, err = rows.NextNeo() {
+		if err != nil {
+			return responses, err
+		}
+		node, ok := data[0].(graph.Node)
+		if !ok {
+			return responses, fmt.Errorf("data[0] is not type graph.Node it is %T\n", data[0])
+		}
+		response := Response{}
+		if id, ok := node.Properties["Id"].(string); ok {
+			response.Id = id
+		}
+		if r, ok := node.Properties["R"].(string); ok {
+			response.R = r
+		}
+
+		responses = append(responses, response)
+	}
+
+	return responses, nil
+}
+
+func QuestionSetReceived(responseIds []string, questionId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	var queries []string
+	var params []Params
+	for _, responseId := range responseIds {
+		queries = append(queries, "MATCH (r:Response{Id:{ responseId }}) MATCH (q:Question{Id:{ questionId }}) MERGE (q)-[:RECEIVED]->(r)")
+		params = append(params, Params{
+			"responseId": responseId,
+			"questionId": questionId,
+		})
+	}
+
+	if _, err := conn.ExecPipeline(queries, params...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func QuestionRemoveReceived(responseId string, questionId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	if _, err := conn.ExecNeo("MATCH (:Question{Id:{ questionId }})-[r:RECEIVED]->(:Response{Id:{ responseId }}) DELETE r", Params{
+		"responseId": responseId,
+		"questionId": questionId,
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,6 +1,6 @@
 /*
 	confirm prompt example
-    <a data-message="Are you sure you would like todo something?" data-color="#ff0000" data-url="/endpoint" data-type="warning">Delete</a>
+    <a class="confirm-action" data-message="Are you sure you would like todo something?" data-color="#ff0000" data-url="/endpoint" data-type="warning">Delete</a>
 */
 
 /*
