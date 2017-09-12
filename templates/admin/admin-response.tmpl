@@ -29,14 +29,14 @@
                         </div>
                         <table id="responses" class="table table-bordered table-hover" width="100%">
                             <thead>
-                                <tr id="search">
+                                <tr>
                                     <th>r</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {{ range $response := .responses }}
-                                    <tr class="clickable">
+                                    <tr class="clickable" data-url="/admin/response/{{ $response.Id }}/question">
                                         <td>{{ $response.R }}</td>
                                         <td class="text-center"><button class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">Edit</button></td>
                                     </tr>
@@ -47,27 +47,6 @@
                 </div>
             </div>
         </div>
-
-        <!--<div class="modal fade" id="add" tabindex="-1" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Add Response</h4>
-                    </div>
-                    <div class="modal-body">
-                        <form class="" action="/admin/response" method="post">
-                            <div class="form-group">
-                                <label>Response</label>
-                                <textarea class="form-control" name="r" rows="4"></textarea>
-                            </div>
-                            <button class="btn btn-success btn-block" name="button">Save</button>
-                        </form>
-
-                    </div>
-                </div>
-            </div>
-        </div>-->
 
         {{ template "scripts.tmpl" . }}
         {{ template "response-form.tmpl" . }}

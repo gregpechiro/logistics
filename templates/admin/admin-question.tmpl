@@ -25,22 +25,24 @@
                             Questions
                             <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#questionModal">Add</button>
                         </div>
-                        <table id="questions" class="table table-bordered table-hover" width="100%">
-                            <thead>
-                                <tr id="search">
-                                    <th>q</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{ range $question := .questions }}
-                                    <tr class="clickable">
-                                        <td>{{ $question.Q }}</td>
-                                        <td class="text-center"><button class="btn btn-primary btn-xs questionEdit" data-question="{{ toBase64Json $question }}">Edit</button></td>
+                        <div class="panel-body">
+                            <table id="questions" class="table table-bordered table-hover" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>q</th>
+                                        <th></th>
                                     </tr>
-                                {{ end }}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {{ range $question := .questions }}
+                                        <tr class="clickable" data-url="/admin/question/{{ $question.Id }}/response">
+                                            <td>{{ $question.Q }}</td>
+                                            <td class="text-center"><button class="btn btn-primary btn-xs questionEdit" data-question="{{ toBase64Json $question }}">Edit</button></td>
+                                        </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -56,13 +58,9 @@
         <script src="/static/js/datatables-custom.js" charset="utf-8"></script>
 
         <script type="text/javascript">
-            var table = $('#question').DataTable({
+            var table = $('#questions').DataTable({
                 "lengthMenu": [5, 10, 15, 20],
-                "pageLength": 10,
-                "columnDefs": [
-                    { "orderable": false, "targets": [0, 1] },
-                    { "name": "q",        "targets": 0 }
-                ]
+                "pageLength": 10
             })
         </script>
 

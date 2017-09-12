@@ -20,40 +20,35 @@
         {{ template "admin-navbar.tmpl" . }}
 
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12 col-xl-12">
-                    <ol class="breadcrumb">
-                        <li><a href="/admin/element">Elements</a></li>
-                        <li><a href="/admin/element/{{ .element.Id }}/area">{{ .element.Name }}</a></li>
-                        <li class="active">{{ .area.Name }}</li>
-                    </ol>
-                </div>
-            </div>
+            <ol class="breadcrumb">
+                <li><a href="/admin/question">Questions</a></li>
+                <li class="active">{{ .question.Q }}</li>
+                <button class="btn btn-primary btn-xs pull-right questionEdit" data-question="{{ toBase64Json .question }}">Edit</button>
+            </ol>
             <div class="row">
                 <div class="col-lg-6 col-xl-6">
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
-                            Questions
+                            Responses
                         </div>
                         <div class="panel-body">
-                            <table id="questions" class="table table-bordered table-hover" width="100%">
+                            <table id="responses" class="table table-bordered table-hover" width="100%">
                                 <thead>
                                     <tr>
-                                        <th>q</th>
+                                        <th>r</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{ $element := .element }}
-                                    {{ $area := .area }}
-                                    {{ range $question := .questions }}
-                                        <tr class="clickable" data-url="/admin/question/{{ $question.Id }}/response">
-                                            <td>{{ $question.Q }}</td>
+                                    {{ $question := .question }}
+                                    {{ range $response := .responses }}
+                                        <tr class="clickable" data-url="/admin/response/{{ $response.Id }}/question">
+                                            <td>{{ $response.R }}</td>
                                             <td class="text-center">
-                                                <form action="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question/remove" method="post">
-                                                    <input type="hidden" name="questionId" value="{{ $question.Id }}">
+                                                <form action="/admin/question/{{ $question.Id }}/response/remove" method="post">
+                                                    <input type="hidden" name="questionId" value="{{ $response.Id }}">
                                                     <button class="btn btn-danger btn-xs">Remove</button>
-                                                    <button type="button" class="btn btn-primary btn-xs questionEdit" data-question="{{ toBase64Json $question }}">Edit</button>
+                                                    <button type="button" class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">Edit</button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -67,26 +62,26 @@
                 <div class="col-lg-6 col-xl-6">
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
-                            Other Questions
-                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#questionModal">New</button>
+                            Other Responses
+                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#responseModal">New</button>
                         </div>
                         <div class="panel-body">
-                            <table id="otherQuestions" class="table table-bordered table-hover" width="100%">
+                            <table id="otherResponses" class="table table-bordered table-hover" width="100%">
                                 <thead style="display:none;">
                                     <tr>
-                                        <th>q</th>
+                                        <th>r</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{ range $question := .otherQuestions }}
-                                        <tr class="clickable" data-url="/admin/question/{{ $question.Id }}/response">
-                                            <td>{{ $question.Q }}</td>
+                                    {{ range $response := .otherResponses }}
+                                        <tr class="clickable" data-url="/admin/response/{{ $response.Id }}/question">
+                                            <td>{{ $response.R }}</td>
                                             <td class="text-center">
-                                                <form action="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question/add" method="post">
-                                                    <input type="hidden" name="questionIds" value="{{ $question.Id }}">
+                                                <form action="/admin/question/{{ $question.Id }}/response/add" method="post">
+                                                    <input type="hidden" name="responseIds" value="{{ $response.Id }}">
                                                     <button class="btn btn-success btn-xs">Add</button>
-                                                    <button type="button" class="btn btn-primary btn-xs questionEdit" data-question="{{ toBase64Json $question }}">Edit</button>
+                                                    <button type="button" class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">Edit</button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -103,18 +98,20 @@
 
         {{ template "question-form.tmpl" . }}
 
+        {{ template "response-form.tmpl" . }}
+
         <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js" charset="utf-8"></script>
         <script src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js" charset="utf-8"></script>
         <script src="/static/js/datatables-custom.js" charset="utf-8"></script>
 
 
         <script type="text/javascript">
-            var table = $('#questions').DataTable({
+            var table = $('#responses').DataTable({
                 "lengthMenu": [5, 10, 15, 20],
                 "pageLength": 10
             });
 
-            var table2 = $('#otherQuestions').DataTable({
+            var table2 = $('#otherResponses').DataTable({
                 "lengthMenu": [5, 10, 15, 20],
                 "pageLength": 10
             });

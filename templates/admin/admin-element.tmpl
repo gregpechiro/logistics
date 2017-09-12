@@ -16,34 +16,31 @@
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
                             Elements
-                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#elementModal">Add</button>
+                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#elementModal">New</button>
                         </div>
-                        <table id="elements" class="table table-bordered table-hover" width="100%">
-                            <thead>
-                                <tr id="search">
-                                    <th>name</th>
-                                    <th>Description</th>
-                                    <th></th>
-                                </tr>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{ range $element := .elements }}
-                                    <tr class="clickable" data-url="/admin/element/{{ $element.Id }}/area">
-                                        <td>{{ $element.Name }}</td>
-                                        <td>{{ $element.Description }}</td>
-                                        <td class="text-center">
-                                            <button class="btn btn-primary btn-xs elementEdit" data-element="{{ toBase64Json $element }}">Edit</button>
-                                            <a class="btn btn-danger btn-xs confirm-action" data-message="Are you sure you would like to delete this supply chain element?" data-color="#ff0000" data-url="/admin/element/del/{{ $element.Id }}" data-type="warning">Delete</a>
-                                        </td>
+                        <div class="panel-body">
+                            <table id="elements" class="table table-bordered table-hover" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th></th>
                                     </tr>
-                                {{ end }}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {{ range $element := .elements }}
+                                        <tr class="clickable" data-url="/admin/element/{{ $element.Id }}/area">
+                                            <td>{{ $element.Name }}</td>
+                                            <td>{{ $element.Description }}</td>
+                                            <td class="text-center">
+                                                <button class="btn btn-primary btn-xs elementEdit" data-element="{{ toBase64Json $element }}">Edit</button>
+                                                <a class="btn btn-danger btn-xs confirm-action" data-message="Are you sure you would like to delete this supply chain element?" data-color="#ff0000" data-url="/admin/element/del/{{ $element.Id }}" data-type="warning">Delete</a>
+                                            </td>
+                                        </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -57,13 +54,11 @@
         <script src="/static/js/datatables-custom.js" charset="utf-8"></script>
 
         <script type="text/javascript">
-            var table = $('#element').DataTable({
+            $('#elements').DataTable({
                 "lengthMenu": [5, 10, 15, 20],
                 "pageLength": 10,
                 "columnDefs": [
-                    { "orderable": false,    "targets": [1,2] },
-                    { "name": "name",        "targets": 0 },
-                    { "name": "description", "targets": 1 }
+                    { "orderable": false,    "targets": [1,2] }
                 ]
             });
 

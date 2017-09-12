@@ -13,10 +13,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 col-xl-12">
-                    <legend>
-                        Element {{ .element.Name }}
+                    <ol class="breadcrumb">
+                        <li><a href="/admin/element">Elements</a></li>
+                        <li class="active">{{ .element.Name }}</li>
                         <button class="btn btn-primary btn-xs pull-right elementEdit" data-element="{{ toBase64Json .element }}">Edit</button>
-                    </legend>
+                    </ol>
                 </div>
             </div>
             <div class="row">

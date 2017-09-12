@@ -20,15 +20,10 @@
         {{ template "admin-navbar.tmpl" . }}
 
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12 col-xl-12">
-                    <ol class="breadcrumb">
-                        <li><a href="/admin/element">Elements</a></li>
-                        <li><a href="/admin/element/{{ .element.Id }}/area">{{ .element.Name }}</a></li>
-                        <li class="active">{{ .area.Name }}</li>
-                    </ol>
-                </div>
-            </div>
+            <ol class="breadcrumb">
+                <li><a href="/admin/response">Responses</a></li>
+                <li class="active">{{ .response.R }}</li>
+            </ol>
             <div class="row">
                 <div class="col-lg-6 col-xl-6">
                     <div class="panel panel-default">
@@ -44,13 +39,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{ $element := .element }}
-                                    {{ $area := .area }}
+                                    {{ $response := .response }}
                                     {{ range $question := .questions }}
                                         <tr class="clickable" data-url="/admin/question/{{ $question.Id }}/response">
                                             <td>{{ $question.Q }}</td>
                                             <td class="text-center">
-                                                <form action="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question/remove" method="post">
+                                                <form action="/admin/response/{{ $response.Id }}/question/remove" method="post">
                                                     <input type="hidden" name="questionId" value="{{ $question.Id }}">
                                                     <button class="btn btn-danger btn-xs">Remove</button>
                                                     <button type="button" class="btn btn-primary btn-xs questionEdit" data-question="{{ toBase64Json $question }}">Edit</button>
@@ -68,11 +62,10 @@
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
                             Other Questions
-                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#questionModal">New</button>
                         </div>
                         <div class="panel-body">
                             <table id="otherQuestions" class="table table-bordered table-hover" width="100%">
-                                <thead style="display:none;">
+                                <thead>
                                     <tr>
                                         <th>q</th>
                                         <th></th>
@@ -83,7 +76,7 @@
                                         <tr class="clickable" data-url="/admin/question/{{ $question.Id }}/response">
                                             <td>{{ $question.Q }}</td>
                                             <td class="text-center">
-                                                <form action="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question/add" method="post">
+                                                <form action="/admin/response/{{ $response.Id }}/question/add" method="post">
                                                     <input type="hidden" name="questionIds" value="{{ $question.Id }}">
                                                     <button class="btn btn-success btn-xs">Add</button>
                                                     <button type="button" class="btn btn-primary btn-xs questionEdit" data-question="{{ toBase64Json $question }}">Edit</button>
@@ -101,12 +94,12 @@
 
         {{ template "scripts.tmpl" . }}
 
+        {{ template "response-form.tmpl" . }}
         {{ template "question-form.tmpl" . }}
 
         <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js" charset="utf-8"></script>
         <script src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js" charset="utf-8"></script>
         <script src="/static/js/datatables-custom.js" charset="utf-8"></script>
-
 
         <script type="text/javascript">
             var table = $('#questions').DataTable({

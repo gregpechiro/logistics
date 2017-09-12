@@ -33,14 +33,17 @@ func init() {
 	mux.AddRoutes(adminHome)
 	// supply chain area
 	mux.AddRoutes(adminSCArea, adminSCAreaAdd, adminSCAreaUpdate, adminSCAreaDelete)
+	mux.AddRoutes(adminAreaElement, adminAreaElementAdd, adminAreaElementRemove)
 	// supply chain element
 	mux.AddRoutes(adminSCElement, adminSCElementAdd, adminSCElementUpdate, adminSCElementDelete)
 	mux.AddRoutes(adminSCElementAreaAdd, adminSCElementArea, adminSCElementAreaRemove)
 	mux.AddRoutes(adminSCElementAreaQuestion, adminSCElementAreaQuestionAdd, adminSCElementAreaQuestionRemove)
 	// question
 	mux.AddRoutes(adminQuestion, adminQuestionAdd, adminQuestionUpdate, adminQuestionDelete)
+	mux.AddRoutes(adminQuestionResponse, adminQuestionResponseAdd, adminQuestionResponseRemove)
 	// response
 	mux.AddRoutes(adminResponse, adminResponseAdd, adminResponseUpdate, adminResponseDelete)
+	mux.AddRoutes(adminResponseQuestion, adminResponseQuestionAdd, adminResponseQuestionRemove)
 
 	web.Funcs["toBase64Json"] = toBase64Json
 

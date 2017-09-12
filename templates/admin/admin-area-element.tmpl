@@ -5,15 +5,6 @@
         <link rel="stylesheet" href="//cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
         <link rel="stylesheet" href="/static/css/datatables-custom.css">
 
-        <style media="screen">
-            .dataTables_wrapper table thead{
-                display:none;
-            }
-            table.dataTable {
-                border-collapse: collapse !important;
-            }
-        </style>
-
         <title>Admin</title>
     </head>
     <body>
@@ -23,9 +14,9 @@
             <div class="row">
                 <div class="col-lg-12 col-xl-12">
                     <ol class="breadcrumb">
-                        <li><a href="/admin/element">Elements</a></li>
-                        <li><a href="/admin/element/{{ .element.Id }}/area">{{ .element.Name }}</a></li>
+                        <li><a href="/admin/area">Areas</a></li>
                         <li class="active">{{ .area.Name }}</li>
+                        <button class="btn btn-primary btn-xs pull-right areaEdit" data-area="{{ toBase64Json .area }}">Edit</button>
                     </ol>
                 </div>
             </div>
@@ -33,27 +24,27 @@
                 <div class="col-lg-6 col-xl-6">
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
-                            Questions
+                            Elements
                         </div>
                         <div class="panel-body">
-                            <table id="questions" class="table table-bordered table-hover" width="100%">
+                            <table id="elements" class="table table-bordered table-hover" width="100%">
                                 <thead>
                                     <tr>
-                                        <th>q</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{ $element := .element }}
                                     {{ $area := .area }}
-                                    {{ range $question := .questions }}
-                                        <tr class="clickable" data-url="/admin/question/{{ $question.Id }}/response">
-                                            <td>{{ $question.Q }}</td>
+                                    {{ range $element := .elements }}
+                                        <tr class="clickable" data-url="/admin/area/{{ $area.Id }}/element/{{ $element.Id }}/question">
+                                            <td>{{ $element.Name }}</td>
+                                            <td>{{ $element.Description }}</td>
                                             <td class="text-center">
-                                                <form action="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question/remove" method="post">
-                                                    <input type="hidden" name="questionId" value="{{ $question.Id }}">
+                                                <form action="/admin/area/{{ $area.Id }}/element/remove" method="post">
+                                                    <input type="hidden" name="elementId" value="{{ $element.Id }}">
                                                     <button class="btn btn-danger btn-xs">Remove</button>
-                                                    <button type="button" class="btn btn-primary btn-xs questionEdit" data-question="{{ toBase64Json $question }}">Edit</button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -67,26 +58,26 @@
                 <div class="col-lg-6 col-xl-6">
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
-                            Other Questions
-                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#questionModal">New</button>
+                            Other Elements
                         </div>
                         <div class="panel-body">
-                            <table id="otherQuestions" class="table table-bordered table-hover" width="100%">
-                                <thead style="display:none;">
+                            <table id="otherElements" class="table table-bordered table-hover" width="100%">
+                                <thead>
                                     <tr>
-                                        <th>q</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{ range $question := .otherQuestions }}
-                                        <tr class="clickable" data-url="/admin/question/{{ $question.Id }}/response">
-                                            <td>{{ $question.Q }}</td>
+                                    {{ range $element := .otherElements }}
+                                        <tr>
+                                            <td>{{ $element.Name }}</td>
+                                            <td>{{ $element.Description }}</td>
                                             <td class="text-center">
-                                                <form action="/admin/element/{{ $element.Id }}/area/{{ $area.Id }}/question/add" method="post">
-                                                    <input type="hidden" name="questionIds" value="{{ $question.Id }}">
+                                                <form action="/admin/area/{{ $area.Id }}/alement/add" method="post">
+                                                    <input type="hidden" name="elementIds" value="{{ $element.Id }}">
                                                     <button class="btn btn-success btn-xs">Add</button>
-                                                    <button type="button" class="btn btn-primary btn-xs questionEdit" data-question="{{ toBase64Json $question }}">Edit</button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -101,22 +92,29 @@
 
         {{ template "scripts.tmpl" . }}
 
-        {{ template "question-form.tmpl" . }}
+        {{ template "element-form.tmpl" . }}
+
+        {{ template "area-form.tmpl" . }}
 
         <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js" charset="utf-8"></script>
         <script src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js" charset="utf-8"></script>
         <script src="/static/js/datatables-custom.js" charset="utf-8"></script>
 
-
         <script type="text/javascript">
-            var table = $('#questions').DataTable({
+            $('#elements').DataTable({
                 "lengthMenu": [5, 10, 15, 20],
-                "pageLength": 10
+                "pageLength": 10,
+                "columnDefs": [
+                    { "orderable": false,    "targets": [1,2] }
+                ]
             });
 
-            var table2 = $('#otherQuestions').DataTable({
+            $('#otherElements').DataTable({
                 "lengthMenu": [5, 10, 15, 20],
-                "pageLength": 10
+                "pageLength": 10,
+                "columnDefs": [
+                    { "orderable": false,    "targets": [1,2] }
+                ]
             });
         </script>
 
