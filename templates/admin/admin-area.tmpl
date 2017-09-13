@@ -15,7 +15,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
                             Areas
-                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#areaModal">Add</button>
+                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#areaModal">New</button>
                         </div>
                         <table id="areas" class="table table-bordered table-hover" width="100%">
                             <thead>
@@ -30,9 +30,13 @@
                                     <tr class="clickable" data-url="/admin/area/{{ $area.Id }}/element">
                                         <td>{{ $area.Name }}</td>
                                         <td>{{ $area.Description }}</td>
-                                        <td class="text-center">
-                                            <button class="btn btn-primary btn-xs areaEdit" data-area="{{ toBase64Json $area }}">Edit</button>
-                                            <a class="btn btn-danger btn-xs confirm-action" data-message="Are you sure you would like to delete this area?" data-color="#ff0000" data-url="/admin/area/del/{{ $area.Id }}" data-type="warning">Delete</a>
+                                        <td class="text-right">
+                                            <a class="btn btn-danger btn-xs confirm-action" data-message="Are you sure you would like to delete this area?" data-color="#ff0000" data-url="/admin/area/{{ $area.Id }}/del" data-type="warning">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                            <button class="btn btn-primary btn-xs areaEdit" data-area="{{ toBase64Json $area }}">
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 {{ end }}

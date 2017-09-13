@@ -25,24 +25,33 @@
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
                             Responses
-                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#responseModal">Add</button>
+                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#responseModal">New</button>
                         </div>
-                        <table id="responses" class="table table-bordered table-hover" width="100%">
-                            <thead>
-                                <tr>
-                                    <th>r</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{ range $response := .responses }}
-                                    <tr class="clickable" data-url="/admin/response/{{ $response.Id }}/question">
-                                        <td>{{ $response.R }}</td>
-                                        <td class="text-center"><button class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">Edit</button></td>
+                        <div class="panel-body">
+                            <table id="responses" class="table table-bordered table-hover" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>r</th>
+                                        <th></th>
                                     </tr>
-                                {{ end }}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {{ range $response := .responses }}
+                                        <tr class="clickable" data-url="/admin/response/{{ $response.Id }}/question">
+                                            <td>{{ $response.R }}</td>
+                                            <td class="text-right">
+                                                <a class="btn btn-danger btn-xs confirm-action" data-message="Are you sure you would like to delete this response?" data-color="#ff0000" data-url="/admin/response/{{ $response.Id }}/del" data-type="warning">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                                <button class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -56,14 +65,18 @@
         <script src="/static/js/datatables-custom.js" charset="utf-8"></script>
 
         <script type="text/javascript">
-            var table = $('#response').DataTable({
+            var table = $('#responses').DataTable({
                 "lengthMenu": [5, 10, 15, 20],
                 "pageLength": 10,
                 "columnDefs": [
                     { "orderable": false,    "targets": [0] },
                     { "name": "r",           "targets": 0 }
                 ]
-            })
+            });
+
+            confirm.yes = function(btn) {
+                $('<form method="post" action="' + btn.attr('data-url') + '"></form>').appendTo('body').submit();
+            }
         </script>
 
     </body>

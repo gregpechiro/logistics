@@ -33,7 +33,7 @@ func init() {
 	mux.AddRoutes(adminHome)
 	// supply chain area
 	mux.AddRoutes(adminSCArea, adminSCAreaAdd, adminSCAreaUpdate, adminSCAreaDelete)
-	mux.AddRoutes(adminAreaElement, adminAreaElementAdd, adminAreaElementRemove)
+	mux.AddRoutes(adminAreaElement, adminAreaElementAdd, adminAreaElementRemove, adminAreaElementQuestion)
 	// supply chain element
 	mux.AddRoutes(adminSCElement, adminSCElementAdd, adminSCElementUpdate, adminSCElementDelete)
 	mux.AddRoutes(adminSCElementAreaAdd, adminSCElementArea, adminSCElementAreaRemove)

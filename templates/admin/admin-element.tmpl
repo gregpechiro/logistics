@@ -32,9 +32,13 @@
                                         <tr class="clickable" data-url="/admin/element/{{ $element.Id }}/area">
                                             <td>{{ $element.Name }}</td>
                                             <td>{{ $element.Description }}</td>
-                                            <td class="text-center">
-                                                <button class="btn btn-primary btn-xs elementEdit" data-element="{{ toBase64Json $element }}">Edit</button>
-                                                <a class="btn btn-danger btn-xs confirm-action" data-message="Are you sure you would like to delete this supply chain element?" data-color="#ff0000" data-url="/admin/element/del/{{ $element.Id }}" data-type="warning">Delete</a>
+                                            <td class="text-right">
+                                                <a class="btn btn-danger btn-xs confirm-action" data-message="Are you sure you would like to delete this supply chain element?" data-color="#ff0000" data-url="/admin/element/{{ $element.Id }}/del" data-type="warning">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-primary btn-xs elementEdit" data-element="{{ toBase64Json $element }}">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     {{ end }}

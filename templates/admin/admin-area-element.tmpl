@@ -16,7 +16,9 @@
                     <ol class="breadcrumb">
                         <li><a href="/admin/area">Areas</a></li>
                         <li class="active">{{ .area.Name }}</li>
-                        <button class="btn btn-primary btn-xs pull-right areaEdit" data-area="{{ toBase64Json .area }}">Edit</button>
+                        <button class="btn btn-primary btn-xs pull-right areaEdit" data-area="{{ toBase64Json .area }}">
+                            <i class="fa fa-pencil"></i>
+                        </button>
                     </ol>
                 </div>
             </div>
@@ -41,11 +43,10 @@
                                         <tr class="clickable" data-url="/admin/area/{{ $area.Id }}/element/{{ $element.Id }}/question">
                                             <td>{{ $element.Name }}</td>
                                             <td>{{ $element.Description }}</td>
-                                            <td class="text-center">
-                                                <form action="/admin/area/{{ $area.Id }}/element/remove" method="post">
-                                                    <input type="hidden" name="elementId" value="{{ $element.Id }}">
-                                                    <button class="btn btn-danger btn-xs">Remove</button>
-                                                </form>
+                                            <td class="text-right">
+                                                <a class="btn btn-danger btn-xs confirm-action" data-id="{{ $element.Id }}" data-message="Are you sure you would like to remove this {{ $element.Name }} from this {{ $.area.Name }}?" data-color="#ff0000" data-url="/admin/area/{{ $area.Id }}/element/remove" data-type="warning">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
                                             </td>
                                         </tr>
                                     {{ end }}
@@ -59,6 +60,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading clearfix">
                             Other Elements
+                            <button class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#elementModal">New</button>
                         </div>
                         <div class="panel-body">
                             <table id="otherElements" class="table table-bordered table-hover" width="100%">
@@ -69,16 +71,28 @@
                                         <th></th>
                                     </tr>
                                 </thead>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3">
+                                            <form class="multi-form" action="/admin/area/{{ $area.Id }}/element/add" method="post">
+                                                <input class="multi-input" type="hidden" name="elementIds">
+                                                <button class="btn btn-success btn-xs disabled pull-right multi-submit" type="button">Add Selected</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tfoot>
                                 <tbody>
                                     {{ range $element := .otherElements }}
                                         <tr>
                                             <td>{{ $element.Name }}</td>
                                             <td>{{ $element.Description }}</td>
-                                            <td class="text-center">
-                                                <form action="/admin/area/{{ $area.Id }}/alement/add" method="post">
-                                                    <input type="hidden" name="elementIds" value="{{ $element.Id }}">
-                                                    <button class="btn btn-success btn-xs">Add</button>
-                                                </form>
+                                            <td class="text-right">
+                                                <button class="btn btn-default btn-xs multi" data-value="{{ $element.Id }}">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-primary btn-xs elementEdit" data-element="{{ toBase64Json $element }}">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     {{ end }}
@@ -92,13 +106,13 @@
 
         {{ template "scripts.tmpl" . }}
 
-        {{ template "element-form.tmpl" . }}
-
         {{ template "area-form.tmpl" . }}
+        {{ template "element-form.tmpl" . }}
 
         <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js" charset="utf-8"></script>
         <script src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js" charset="utf-8"></script>
         <script src="/static/js/datatables-custom.js" charset="utf-8"></script>
+        <script src="/static/js/multi-select.js" charset="utf-8"></script>
 
         <script type="text/javascript">
             $('#elements').DataTable({
@@ -116,6 +130,11 @@
                     { "orderable": false,    "targets": [1,2] }
                 ]
             });
+
+            confirm.yes = function(btn) {
+                $('<form method="post" action="' + btn.attr('data-url') + '"><input name="elementId" value="'  + btn.attr('data-id') +  '"></form>').appendTo('body').submit();
+            }
+
         </script>
 
     </body>

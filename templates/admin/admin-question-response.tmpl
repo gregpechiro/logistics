@@ -23,7 +23,9 @@
             <ol class="breadcrumb">
                 <li><a href="/admin/question">Questions</a></li>
                 <li class="active">{{ .question.Q }}</li>
-                <button class="btn btn-primary btn-xs pull-right questionEdit" data-question="{{ toBase64Json .question }}">Edit</button>
+                <button class="btn btn-primary btn-xs pull-right questionEdit" data-question="{{ toBase64Json .question }}">
+                    <i class="fa fa-pencil"></i>
+                </button>
             </ol>
             <div class="row">
                 <div class="col-lg-6 col-xl-6">
@@ -44,12 +46,13 @@
                                     {{ range $response := .responses }}
                                         <tr class="clickable" data-url="/admin/response/{{ $response.Id }}/question">
                                             <td>{{ $response.R }}</td>
-                                            <td class="text-center">
-                                                <form action="/admin/question/{{ $question.Id }}/response/remove" method="post">
-                                                    <input type="hidden" name="questionId" value="{{ $response.Id }}">
-                                                    <button class="btn btn-danger btn-xs">Remove</button>
-                                                    <button type="button" class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">Edit</button>
-                                                </form>
+                                            <td class="text-right">
+                                                <a class="btn btn-danger btn-xs confirm-action" data-id="{{ $response.Id }}" data-message="Are you sure you would like to remove '{{ $response.R }}' from '{{ $question.Q }}'?" data-color="#ff0000" data-url="/admin/question/{{ $question.Id }}/response/remove" data-type="warning">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     {{ end }}
@@ -73,16 +76,27 @@
                                         <th></th>
                                     </tr>
                                 </thead>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2">
+                                            <form class="multi-form" action="/admin/question/{{ $question.Id }}/response/add" method="post">
+                                                <input class="multi-input" type="hidden" name="responseIds">
+                                                <button class="btn btn-success btn-xs disabled pull-right multi-submit" type="button">Add Selected</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tfoot>
                                 <tbody>
                                     {{ range $response := .otherResponses }}
                                         <tr class="clickable" data-url="/admin/response/{{ $response.Id }}/question">
                                             <td>{{ $response.R }}</td>
-                                            <td class="text-center">
-                                                <form action="/admin/question/{{ $question.Id }}/response/add" method="post">
-                                                    <input type="hidden" name="responseIds" value="{{ $response.Id }}">
-                                                    <button class="btn btn-success btn-xs">Add</button>
-                                                    <button type="button" class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">Edit</button>
-                                                </form>
+                                            <td class="text-right">
+                                                <button class="btn btn-default btn-xs multi" data-value="{{ $response.Id }}">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-primary btn-xs responseEdit" data-response="{{ toBase64Json $response }}">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     {{ end }}
@@ -103,6 +117,7 @@
         <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js" charset="utf-8"></script>
         <script src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js" charset="utf-8"></script>
         <script src="/static/js/datatables-custom.js" charset="utf-8"></script>
+        <script src="/static/js/multi-select.js" charset="utf-8"></script>
 
 
         <script type="text/javascript">
@@ -115,6 +130,10 @@
                 "lengthMenu": [5, 10, 15, 20],
                 "pageLength": 10
             });
+
+            confirm.yes = function(btn) {
+                $('<form method="post" action="' + btn.attr('data-url') + '"><input name="responseId" value="'  + btn.attr('data-id') +  '"></form>').appendTo('body').submit();
+            }
         </script>
 
     </body>

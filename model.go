@@ -47,6 +47,22 @@ type Response struct {
 	R  string
 }
 
+func AreaDeleteHyper(areaId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	if _, err := conn.ExecNeo("MATCH (:SC_Area{Id:{ areaId }})<-[:IN]-(h:Hyper) DETACH DELETE h", Params{
+		"areaId": areaId,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func AreaGetElementsLocatedIn(areaId string) ([]SC_Element, error) {
 	var elements []SC_Element
 	conn, err := driver.OpenPool()
@@ -123,6 +139,63 @@ func AreaGetElementsNotLocatedIn(areaId string) ([]SC_Element, error) {
 	}
 
 	return elements, nil
+}
+
+func AreaSetLocatedInElement(elementIds []string, areaId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	var queries []string
+	var params []Params
+	for _, elementId := range elementIds {
+		queries = append(queries, "MATCH (a:SC_Area{Id:{ areaId }}) MATCH (e:SC_Element{Id:{ elementId }}) MERGE (e)-[:LOCATED_IN]->(a)")
+		params = append(params, Params{
+			"areaId":    areaId,
+			"elementId": elementId,
+		})
+	}
+
+	if _, err := conn.ExecPipeline(queries, params...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func AreaRemoveLocatedInElement(elementId string, areaId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	if _, err := conn.ExecNeo("MATCH (:SC_Element{Id:{ elementId }})-[r:LOCATED_IN]->(:SC_Area{Id:{ areaId }}) DELETE r", Params{
+		"areaId":    areaId,
+		"elementId": elementId,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ElementDeleteHyper(elementId string) error {
+	conn, err := driver.OpenPool()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	if _, err := conn.ExecNeo("MATCH (:SC_Element{Id:{ elementId }})-[:ASKS_IN]->(h:Hyper) DETACH DELETE h", Params{
+		"elementId": elementId,
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func ElementGetLocatedInAreas(elementId string) ([]SC_Area, error) {
@@ -497,7 +570,7 @@ func ResponseSetFollowUp(questionIds []string, responseId string) error {
 	return nil
 }
 
-func ResponseRemoveFollowUp(responseId string, questionId string) error {
+func ResponseRemoveFollowUp(questionId string, responseId string) error {
 	conn, err := driver.OpenPool()
 	if err != nil {
 		return err
