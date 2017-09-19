@@ -37,7 +37,7 @@
                                     {{ range $question := .questions }}
                                         <tr class="clickable" data-url="/admin/question/{{ $question.Id }}/response">
                                             <td>{{ $question.Q }}</td>
-                                            <td class="text-right">
+                                            <td class="text-right no-click">
                                                 <a class="btn btn-danger btn-xs confirm-action" data-message="Are you sure you would like to delete this question?" data-color="#ff0000" data-url="/admin/question/{{ $question.Id }}/del" data-type="warning">
                                                     <i class="fa fa-trash"></i>
                                                 </a>

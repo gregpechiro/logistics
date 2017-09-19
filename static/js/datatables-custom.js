@@ -11,6 +11,7 @@ $(document).on('click', 'tr.clickable', function() {
     TRCLICK(this);
 });
 
+
 $('#filter').on( 'keyup', function () {
     if (table !== undefined && !$.isEmptyObject(table)) {
         table.search( this.value ).draw();
@@ -30,4 +31,8 @@ $('input#columnSearch').keyup(function() {
     if (column.search() !== this.value ) {
         column.search(this.value).draw();
     }
+});
+
+$('.no-click').click(function(e) {
+    e.stopPropagation();
 });

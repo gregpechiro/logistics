@@ -11,3 +11,7 @@ tr#search th {
 .clickable {
     cursor: pointer;
 }
+
+td.no-click {
+    cursor: default;
+}

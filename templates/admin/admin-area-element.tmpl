@@ -43,7 +43,7 @@
                                         <tr class="clickable" data-url="/admin/area/{{ $area.Id }}/element/{{ $element.Id }}/question">
                                             <td>{{ $element.Name }}</td>
                                             <td>{{ $element.Description }}</td>
-                                            <td class="text-right">
+                                            <td class="text-right no-click">
                                                 <a class="btn btn-danger btn-xs confirm-action" data-id="{{ $element.Id }}" data-message="Are you sure you would like to remove this {{ $element.Name }} from this {{ $.area.Name }}?" data-color="#ff0000" data-url="/admin/area/{{ $area.Id }}/element/remove" data-type="warning">
                                                     <i class="fa fa-trash"></i>
                                                 </a>
@@ -83,10 +83,10 @@
                                 </tfoot>
                                 <tbody>
                                     {{ range $element := .otherElements }}
-                                        <tr>
+                                        <tr class="clickable" data-url="/admin/area/{{ $area.Id }}/element/{{ $element.Id }}/question">
                                             <td>{{ $element.Name }}</td>
                                             <td>{{ $element.Description }}</td>
-                                            <td class="text-right">
+                                            <td class="text-right no-click">
                                                 <button class="btn btn-default btn-xs multi" data-value="{{ $element.Id }}">
                                                     <i class="fa fa-plus"></i>
                                                 </button>

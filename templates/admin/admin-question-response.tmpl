@@ -46,7 +46,7 @@
                                     {{ range $response := .responses }}
                                         <tr class="clickable" data-url="/admin/response/{{ $response.Id }}/question">
                                             <td>{{ $response.R }}</td>
-                                            <td class="text-right">
+                                            <td class="text-right no-click">
                                                 <a class="btn btn-danger btn-xs confirm-action" data-id="{{ $response.Id }}" data-message="Are you sure you would like to remove '{{ $response.R }}' from '{{ $question.Q }}'?" data-color="#ff0000" data-url="/admin/question/{{ $question.Id }}/response/remove" data-type="warning">
                                                     <i class="fa fa-trash"></i>
                                                 </a>
@@ -90,7 +90,7 @@
                                     {{ range $response := .otherResponses }}
                                         <tr class="clickable" data-url="/admin/response/{{ $response.Id }}/question">
                                             <td>{{ $response.R }}</td>
-                                            <td class="text-right">
+                                            <td class="text-right no-click">
                                                 <button class="btn btn-default btn-xs multi" data-value="{{ $response.Id }}">
                                                     <i class="fa fa-plus"></i>
                                                 </button>
