@@ -52,7 +52,7 @@ func init() {
 	defaultUsers()
 
 	var err error
-	driver, err = bolt.NewDriverPool("bolt://neo4j:admin@localhost:7687", 10)
+	driver, err = bolt.NewDriverPool("bolt://neo4j:admin@192.168.0.77:7687", 10)
 	if err != nil {
 		panic(err)
 	}
