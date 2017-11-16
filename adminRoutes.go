@@ -114,15 +114,16 @@ var adminAreaElement = web.Route{"GET", "/admin/area/:id/element", func(w http.R
 		web.SetErrorRedirect(w, r, "/admin/area", "Error finding supply chain area")
 		return
 	}
+
 	elements, err := AreaGetElementsLocatedIn(area.Id)
 	if err != nil {
+		fmt.Printf("\n>>>> %v\n", err)
 		web.SetErrorRedirect(w, r, "/admin/area", "Error retrieving supply chain elements for supply chain area")
 		return
 	}
 
 	otherElements, err := AreaGetElementsNotLocatedIn(area.Id)
 	if err != nil {
-		fmt.Printf("\n>>>>%v\n", err)
 		web.SetErrorRedirect(w, r, "/admin/area", "Error getting supply chain elements")
 		return
 	}

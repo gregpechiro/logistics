@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/johnnadratowski/golang-neo4j-bolt-driver/encoding"
 	"github.com/johnnadratowski/golang-neo4j-bolt-driver/structures/graph"
 )
 
@@ -63,7 +64,7 @@ func AreaDeleteHyper(areaId string) error {
 	return nil
 }
 
-func AreaGetElementsLocatedIn(areaId string) ([]SC_Element, error) {
+func _AreaGetElementsLocatedIn(areaId string) ([]SC_Element, error) {
 	var elements []SC_Element
 	conn, err := driver.OpenPool()
 	if err != nil {
@@ -98,6 +99,32 @@ func AreaGetElementsLocatedIn(areaId string) ([]SC_Element, error) {
 		elements = append(elements, element)
 	}
 
+	return elements, nil
+}
+
+func AreaGetElementsLocatedIn(areaId string) ([]SC_Element, error) {
+	enc, err := encoding.Marshal(Params{"areaId": areaId})
+	if err != nil {
+		return nil, err
+
+	}
+	rows, err := neoDB.Query("MATCH (e:SC_Element)-[:LOCATED_IN]->(a:SC_Area{ Id:{ areaId }}) RETURN e.Id, e.Name, e.Description", enc)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var elements []SC_Element
+	for rows.Next() {
+		var element SC_Element
+		if err := rows.Scan(&element.Id, &element.Name, &element.Description); err != nil {
+			return nil, err
+		}
+		elements = append(elements, element)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
 	return elements, nil
 }
 

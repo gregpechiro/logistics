@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,6 +16,7 @@ var tmpl *web.TmplCache
 var mux *web.Mux
 var db *adb.DB = adb.NewDB()
 var driver bolt.DriverPool
+var neoDB *sql.DB
 
 func init() {
 	db.AddStore("user")
@@ -53,6 +55,11 @@ func init() {
 
 	var err error
 	driver, err = bolt.NewDriverPool("bolt://neo4j:admin@192.168.0.77:7687", 10)
+	if err != nil {
+		panic(err)
+	}
+
+	neoDB, err = sql.Open("neo4j-bolt", "bolt://neo4j:admin@192.168.0.77:7687")
 	if err != nil {
 		panic(err)
 	}
